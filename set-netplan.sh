@@ -21,7 +21,7 @@ config_content="network:
         enp1s0:
             dhcp4: no
             addresses:
-                - $1/24
+                - $1/23
             routes:
                 - to: default
                   via: 10.0.1.254
