@@ -15,12 +15,6 @@ fi
 # Path to the netplan configuration file
 netplan_file="/etc/netplan/00-installer-config.yaml"
 
-# Check if the config file exists
-if [[ ! -f $1 ]]; then
-    echo "The specified config file does not exist"
-    exit 1
-fi
-
 # Predefined configuration content
 config_content="network:
     ethernets:
