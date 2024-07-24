@@ -19,6 +19,7 @@ if [[ ! -f set-hostname.sh ]]; then
 fi
 
 # Set hostname
+chmod +x set-hostname.sh
 ./set-hostname.sh "$1"
 
 # Verify that set-netplan.sh exists
@@ -28,4 +29,5 @@ if [[ ! -f set-netplan.sh ]]; then
 fi
 
 # Set netplan
+chmod +x set-netplan.sh
 ./set-netplan.sh "$2"
