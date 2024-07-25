@@ -23,6 +23,6 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/
 echo "Calico installed"
 
 join_command=$(kubeadm token create --print-join-command)
-echo "Join command: $join_command"
+echo "Join command: sudo $join_command --cri-socket /var/run/crio/crio.sock"
 
 echo "Master node setup complete"
