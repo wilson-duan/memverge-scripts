@@ -6,11 +6,18 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# Make sure the script is given two arguments
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <POD_CIDR> <SERVICE_CIDR>"
+    exit 1
+fi
+
 export IPADDR="$(ip --json a s | jq -r '.[] | if .ifname == "enp1s0" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
 export NODENAME=$(hostname -s)
-export POD_CIDR="10.1.0.0/16"
+export POD_CIDR=$1 # 10.1.0.0/16
+export SERVICE_CIDR=$2 # 10.96.0.0/12
 
-sudo kubeadm init --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME --ignore-preflight-errors Swap --cri-socket /var/run/crio/crio.sock
+sudo kubeadm init --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --service-cidr=$SERVICE_CIDR --node-name $NODENAME --ignore-preflight-errors Swap --cri-socket /var/run/crio/crio.sock
 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
