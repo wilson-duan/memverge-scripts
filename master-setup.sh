@@ -92,6 +92,44 @@ kubectl rollout restart deployment coredns -n ${NAMESPACE}
 
 echo "CoreDNS ConfigMap updated successfully."
 
+# Change the name of the K8s cluster
+# Edit the kubeadm-config ConfigMap to change the cluster name
+kubectl get configmap -n kube-system kubeadm-config -o yaml | \
+sed "s/clusterName: .*/clusterName: $NEW_CLUSTER_NAME/" | \
+kubectl apply -f -
+
+# Path to kubeconfig
+KUBECONFIG_PATH=~/.kube/config
+
+# Backup the original kubeconfig
+cp $KUBECONFIG_PATH $KUBECONFIG_PATH.bak
+
+# Use yq to update the kubeconfig file
+# Install yq if it is not installed
+if ! command -v yq &> /dev/null; then
+  echo "yq could not be found, installing yq..."
+  sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+  sudo chmod +x /usr/bin/yq
+fi
+
+# Update the cluster name in the clusters section
+yq eval ".clusters[].name = \"$NEW_CLUSTER_NAME\"" -i $KUBECONFIG_PATH
+
+# Update the cluster name in the contexts section
+yq eval ".contexts[].context.cluster = \"$NEW_CLUSTER_NAME\"" -i $KUBECONFIG_PATH
+
+# Optionally update the context name to reflect the new cluster name
+# This step assumes there is only one context. Modify as needed for multiple contexts.
+yq eval ".contexts[].name = \"kubernetes-admin@$NEW_CLUSTER_NAME\"" -i $KUBECONFIG_PATH
+
+# Get the current context
+CURRENT_CONTEXT=$(yq eval ".current-context" $KUBECONFIG_PATH)
+
+# Update the current context to use the new cluster name
+yq eval ".current-context = \"kubernetes-admin@$NEW_CLUSTER_NAME\"" -i $KUBECONFIG_PATH
+
+echo "Changed name of K8s cluster."
+
 join_command=$(kubeadm token create --print-join-command)
 echo "Join command: sudo $join_command --cri-socket unix:///var/run/crio/crio.sock"
 
