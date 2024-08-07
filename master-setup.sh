@@ -30,8 +30,6 @@ nodeRegistration:
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
-metadata:
-  name: $CLUSTER_NAME
 kubernetesVersion: 1.28.0
 networking:
   podSubnet: $POD_CIDR
@@ -104,17 +102,18 @@ KUBECONFIG_PATH=~/.kube/config
 # Backup the original kubeconfig
 cp $KUBECONFIG_PATH $KUBECONFIG_PATH.bak
 
-# Modify the kubeconfig file using sed
-sed -i.bak "s/name: kubernetes/name: $CLUSTER_NAME/g" $KUBECONFIG_PATH
-sed -i "s/cluster: kubernetes/cluster: $CLUSTER_NAME/g" $KUBECONFIG_PATH
-sed -i "s/current-context: kubernetes-admin@kubernetes/current-context: kubernetes-admin@$CLUSTER_NAME/g" $KUBECONFIG_PATH
-sed -i "s/name: kubernetes-admin@kubernetes/name: kubernetes-admin@$CLUSTER_NAME/g" $KUBECONFIG_PATH
+# Use sed to modify the kubeconfig file
+# Update the cluster name in the clusters section
+sed -i "s/^\(\s*name:\s*\)kubernetes$/\1$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
 
-# Verify the changes
-echo "Updated kubeconfig:"
-grep -A 5 "clusters:" $KUBECONFIG_PATH
-grep -A 2 "contexts:" $KUBECONFIG_PATH
-grep "current-context" $KUBECONFIG_PATH
+# Update the context cluster reference in the contexts section
+sed -i "s/^\(\s*cluster:\s*\)kubernetes$/\1$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
+
+# Update the context name in the contexts section
+sed -i "s/^\(\s*name:\s*\)kubernetes-admin@kubernetes$/\1kubernetes-admin@$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
+
+# Update the current context to use the new cluster name
+sed -i "s/^\(\s*current-context:\s*\)kubernetes-admin@kubernetes$/\1kubernetes-admin@$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
 
 echo "Changed name of cluster."
 
