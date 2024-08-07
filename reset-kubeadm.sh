@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Reset the kubeadm cluster
-sudo kubeadm reset
+sudo kubeadm reset --cri-socket=unix:///var/run/crio/crio.sock
 
 # Remove the .kube directory
 rm -rf ~/.kube
