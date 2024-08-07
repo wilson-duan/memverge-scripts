@@ -108,16 +108,16 @@ cp $KUBECONFIG_PATH $KUBECONFIG_PATH.bak
 
 # Use sed to modify the kubeconfig file
 # Update the cluster name in the clusters section
-sed -i "s/^\(\s*name:\s*\)kubernetes$/\1$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
+sed -i "s/^\(\s*name:\s*\)kubernetes$/\1$CLUSTER_NAME/" $KUBECONFIG_PATH
 
 # Update the context cluster reference in the contexts section
-sed -i "s/^\(\s*cluster:\s*\)kubernetes$/\1$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
+sed -i "s/^\(\s*cluster:\s*\)kubernetes$/\1$CLUSTER_NAME/" $KUBECONFIG_PATH
 
 # Update the context name in the contexts section
-sed -i "s/^\(\s*name:\s*\)kubernetes-admin@kubernetes$/\1kubernetes-admin@$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
+sed -i "s/^\(\s*name:\s*\)kubernetes-admin@kubernetes$/\1kubernetes-admin@$CLUSTER_NAME/" $KUBECONFIG_PATH
 
 # Update the current context to use the new cluster name
-sed -i "s/^\(\s*current-context:\s*\)kubernetes-admin@kubernetes$/\1kubernetes-admin@$NEW_CLUSTER_NAME/" $KUBECONFIG_PATH
+sed -i "s/^\(\s*current-context:\s*\)kubernetes-admin@kubernetes$/\1kubernetes-admin@$CLUSTER_NAME/" $KUBECONFIG_PATH
 
 echo "Changed name of cluster."
 
