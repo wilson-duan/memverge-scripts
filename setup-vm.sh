@@ -13,21 +13,21 @@ if [[ $# -ne 2 ]]; then
 fi
 
 # Verify that set-hostname.sh exists
-if [[ ! -f set-hostname.sh ]]; then
+if [[ ! -f ./helper/set-hostname.sh ]]; then
    echo "set-hostname.sh is missing"
    exit 1
 fi
 
 # Set hostname
-chmod +x set-hostname.sh
-./set-hostname.sh "$1"
+chmod +x ./helper/set-hostname.sh
+./helper/set-hostname.sh "$1"
 
 # Verify that set-netplan.sh exists
-if [[ ! -f set-netplan.sh ]]; then
+if [[ ! -f ./helper/set-netplan.sh ]]; then
    echo "set-netplan.sh is missing"
    exit 1
 fi
 
 # Set netplan
-chmod +x set-netplan.sh
-./set-netplan.sh "$2"
+chmod +x ./helper/set-netplan.sh
+./helper/set-netplan.sh "$2"
