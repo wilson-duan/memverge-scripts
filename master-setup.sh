@@ -6,17 +6,21 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Make sure the script is given two arguments
-if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <POD_CIDR> <SERVICE_CIDR> <CLUSTER_NAME>"
-    exit 1
+# Ensure that the script is run with either 1 or 3 arguments
+if [ "$#" -ne 1 ] && [ "$#" -ne 3 ]; then
+  echo "Usage: $0 <CLUSTER_NAME> [POD_CIDR] [SERVICE_CIDR]"
+  exit 1
 fi
+
+# Set default values
+DEFAULT_POD_CIDR="10.1.0.0/16"
+DEFAULT_SERVICE_CIDR="10.96.0.0/12"
 
 export IPADDR="$(ip --json a s | jq -r '.[] | if .ifname == "enp1s0" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
 export NODENAME=$(hostname -s)
-export POD_CIDR=$1 # 10.1.0.0/16
-export SERVICE_CIDR=$2 # 10.96.0.0/12
-export CLUSTER_NAME=$3
+export CLUSTER_NAME=$1
+export POD_CIDR=${2:-$DEFAULT_POD_CIDR}
+export SERVICE_CIDR=${3:-$DEFAULT_SERVICE_CIDR}
 
 # Create the kubeadm configuration file
 cat <<EOF > kubeadm-config.yaml
