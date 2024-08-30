@@ -12,16 +12,17 @@ These are scripts that I have been using to create Kubernetes clusters on top of
 4. Reboot the VM, and once it is rebooted, you can ssh into it with the static IP you chose.
 
 ### Step 2: Configure VMs
-1. There are many things to be installed/configured. All you need to do is run the script: `./kubeadm-setup.sh` and it should set everything up correctly.
+1. There are many things to be installed/configured. All you need to do is run the script: `./kubeadm-setup.sh` and it should set everything up correctly. This handles things such as iptables, disabling swap, installing kubectl, kubeadm, kubelet, installing a CRI (cri-o in this script).
 
 ### Step 3: Set up Master Node
 1. The script `./master-setup.sh <cluster-name> [pod_cidr] [service_cidr]` will handle many things, note that `cluster-name` is a mandatory argument, and `pod_cidr` and `service_cidr` are optional arguments - the script will use the default CIDRs if not provided:
     - Runs `kubeadm init` to initialize the cluster, using the given POD_CIDR and SERVICE_CIDR if provided
     - Installs Calico for CNI
-    - Installs a storage class, sets it as the default storage class
-    - Modifies the coredns configmap to fix an error that I commonly experience with networking
+    - Installs a storage class (which uses local path), sets it as the default storage class
+    - Modifies the coredns configmap to fix an error that I commonly experience with networking - changes the nameserver to 8.8.8.8 and 8.8.4.4
     - Changes the name of the cluster to `cluster-name`
     - At the end of the script, it prints out a command that you run on your worker nodes to connect the worker nodes to the cluster
 
 ### Optional Step: Install NFS-Provisioner
 1. The script `setup_nfs.sh` and the `nfs-provisioner.yaml` files are copied from https://github.com/justmeandopensource/kubernetes/tree/master/vagrant-provisioning/misc/nfs-subdir-external-provisioner, I do not take credit for these files. See https://www.youtube.com/watch?v=fHBhFTF7Hls for any help setting up NFS.
+2. On each worker node, you can straight up run the script `setup_nfs.sh`. However, on the master node, you have to modify `setup_nfs.sh`, and replace `kmaster` with the hostname of your worker node - this allows the script to identify that the machine is the master node, prompting it to start the NFS server.
